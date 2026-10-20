@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font);
+}
+
+html {
+    position: relative;
+    /* height: 100%; */
+
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif, -apple-system, sans-serif;
+  background-color: var(--surface);
+  color: var(--on-surface);
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}

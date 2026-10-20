@@ -1,0 +1,26 @@
+
+{
+  "manifest_version": 3,
+  "name": "English Toolkit",
+  "version": "1.0.0",
+  "description": "A Comprehensive Toolkit to Enhance Your English Skills",
+  "permissions": ["tabs", "sidePanel", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Side Panel"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "commands": {
+    "toggle-panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Open the side panel"
+    }
+  }
+}

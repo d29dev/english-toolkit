@@ -1,0 +1,76 @@
+@font-face {
+  font-family: "Roboto";
+  src: url(../assets/fonts/Roboto-VariableFont_wdth\,wght.ttf);
+}
+
+:root {
+    /* Primary Tokens */
+  --font: "Roboto", sans-serif;
+  --color: #333;
+  --font-size: 16px;
+  --panel-bg: #ffffff;
+  --primary: #717ec3;
+  --on-primary: #ffffff;
+  --primary-container: #e0e1ff;
+  --on-primary-container: #131b4d;
+
+  /* Neutral & Surface Tokens */
+  --surface: #faf8ff;
+  --on-surface: #1b1b21;
+  --surface-variant: #e3e1ec;
+  --on-surface-variant: #46464f;
+  --outline: #777680;
+
+  /* Elevation Shadows (Bóng đổ Material) */
+  --elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+
+  /* Shape / Corner Radius */
+  --shape-corner-medium: 12px;
+  --shape-corner-large: 16px;
+  --shape-corner-larger: 24px;
+  --shape-corner-full: 9999px;
+
+
+  
+}
+
+/* -----------------------------------------------------------
+   Dark tokens — applied by the theme setting (data-theme) or
+   by the OS when theme = "system"
+   ----------------------------------------------------------- */
+:root[data-theme="dark"] {
+  --primary: #aeb8ec;
+  --on-primary: #14183c;
+  --primary-container: #2c3358;
+  --on-primary-container: #e0e1ff;
+
+  --surface: #121316;
+  --on-surface: #e3e1e6;
+  --surface-variant: #45464f;
+  --on-surface-variant: #c6c5d0;
+  --outline: #90909a;
+
+  --color: #e3e1e6;
+  --panel-bg: #1a1b1f;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --primary: #aeb8ec;
+    --on-primary: #14183c;
+    --primary-container: #2c3358;
+    --on-primary-container: #e0e1ff;
+
+    --surface: #121316;
+    --on-surface: #e3e1e6;
+    --surface-variant: #45464f;
+    --on-surface-variant: #c6c5d0;
+    --outline: #90909a;
+
+    --color: #e3e1e6;
+    --panel-bg: #1a1b1f;
+    color-scheme: dark;
+  }
+}

@@ -1,12 +1,14 @@
 {
   "name": "english-toolkit",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:ext": "vite build --watch",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "node --import ./test/register.js --test test/*.test.js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -14,9 +16,11 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@types/chrome": "^0.3.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^30.1.3",
     "oxlint": "^1.81.0",
     "vite": "^8.3.0"
   }

@@ -1,0 +1,8 @@
+class Editor {
+    constructor() {}
+    
+
+    value() {
+        
+    }
+}
