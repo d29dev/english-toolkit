@@ -17,7 +17,7 @@ test("mọi setting trong schema đều hợp lệ về cấu trúc", () => {
   assert.ok(specs.length >= 7, `có ${specs.length} setting`);
 
   for (const { group, key, spec } of specs) {
-    assert.ok(["enum", "number", "boolean"].includes(spec.type),
+    assert.ok(["enum", "number", "boolean", "string", "stringList"].includes(spec.type),
       `${group}.${key} có type hợp lệ`);
     assert.ok(spec.default !== undefined, `${group}.${key} có default`);
     assert.ok(spec.label, `${group}.${key} có label`);
@@ -44,6 +44,16 @@ test("mọi setting trong schema đều hợp lệ về cấu trúc", () => {
 
     if (spec.type === "boolean") {
       assert.equal(typeof spec.default, "boolean", `${group}.{key} default là boolean`);
+    }
+
+    if (spec.type === "string") {
+      assert.equal(typeof spec.default, "string", `${group}.${key} default là string`);
+    }
+
+    if (spec.type === "stringList") {
+      assert.ok(Array.isArray(spec.default), `${group}.${key} default là array`);
+      assert.ok(spec.default.every((item) => typeof item === "string"),
+        `${group}.${key} default chỉ chứa string`);
     }
 
     // default phải tự validate được — nếu không, schema tự mâu thuẫn

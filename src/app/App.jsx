@@ -7,6 +7,7 @@ import { tabs } from "./tabs";
 import { TabProvider } from "@/core/providers";
 import { SettingsProvider } from "@/core/settings/SettingsProvider";
 import { LookupProvider } from "@/features/lookup/LookupProvider";
+import { AssistantProvider } from "@/features/assistant/AssistantProvider";
 import { useSettings } from "@/core/settings/useSettings";
 import { useShortcuts } from "@/core/hooks/useShortcuts";
 import { useTab } from "@/core/hooks/useTab";
@@ -60,9 +61,11 @@ function App() {
     <div className="app">
       <SettingsProvider>
         <LookupProvider>
-          <TabProvider tabs={tabs}>
-            <AppContent />
-          </TabProvider>
+          <AssistantProvider>
+            <TabProvider tabs={tabs}>
+              <AppContent />
+            </TabProvider>
+          </AssistantProvider>
         </LookupProvider>
       </SettingsProvider>
     </div>

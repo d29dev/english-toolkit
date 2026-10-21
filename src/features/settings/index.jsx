@@ -76,23 +76,30 @@ export default function SettingsPanel() {
 
   return (
     <>
-      {Object.entries(SETTINGS_SCHEMA).map(([group, groupDef]) => (
-        <section className="settings-group" key={group}>
-          <h2>{groupDef.label}</h2>
-          {groupDef.description && <p className="hint">{groupDef.description}</p>}
+      {Object.entries(SETTINGS_SCHEMA)
+        .map(([group, groupDef]) => [
+          group,
+          groupDef,
+          Object.entries(groupDef.settings).filter(([, spec]) => !spec.hidden),
+        ])
+        .filter(([, , visible]) => visible.length > 0)
+        .map(([group, groupDef, visible]) => (
+          <section className="settings-group" key={group}>
+            <h2>{groupDef.label}</h2>
+            {groupDef.description && <p className="hint">{groupDef.description}</p>}
 
-          {Object.entries(groupDef.settings).map(([name, spec]) => (
-            <SettingRow
-              key={name}
-              group={group}
-              name={name}
-              spec={spec}
-              value={settings[group][name]}
-              onChange={updateSetting}
-            />
-          ))}
-        </section>
-      ))}
+            {visible.map(([name, spec]) => (
+              <SettingRow
+                key={name}
+                group={group}
+                name={name}
+                spec={spec}
+                value={settings[group][name]}
+                onChange={updateSetting}
+              />
+            ))}
+          </section>
+        ))}
 
       <div className="actions">
         <button type="button" onClick={resetSettings}>

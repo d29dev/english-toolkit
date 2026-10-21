@@ -7,6 +7,7 @@ import {
   HomeIcon,
   LookupIcon,
   StarIcon,
+  AssistantIcon,
 } from "@/core/components/Icons";
 
 import SettingsPanel from "@/features/settings";
@@ -17,6 +18,7 @@ import RewritePanel from "@/features/rewrite";
 import HomePanel from "@/features/home";
 import LookupPanel from "@/features/lookup";
 import FavoritesPanel from "@/features/favorites";
+import AssistantPanel from "@/features/assistant";
 
 export const tabs = [
   {
@@ -39,6 +41,13 @@ export const tabs = [
     icon: HomeIcon,
     content: HomePanel,
     description: "Home page",
+  },
+  {
+    off: false,
+    title: "Assistant",
+    icon: AssistantIcon,
+    content: AssistantPanel,
+    description: "AI chat assistant",
   },
   {
     off: false,

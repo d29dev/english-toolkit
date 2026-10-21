@@ -2,13 +2,17 @@
  * Settings schema — nguồn sự thật duy nhất.
  *
  * Mỗi setting là một object mô tả:
- *   type      "enum" | "number" | "boolean"
+ *   type      "enum" | "number" | "boolean" | "string" | "stringList"
  *   default   giá trị mặc định (bắt buộc)
  *   label     nhãn hiển thị (UI)
  *   description  ghi chú ngắn (UI, tooltip)
  *   options   (enum) danh sách giá trị hợp lệ, dạng [{ value, label }]
  *   min/max/step  (number) miền giá trị và bước nhảy
  *   unit      (number) hậu tố hiển thị, ví dụ "px" hoặc "s"
+ *   itemValues   (stringList) tập giá trị hợp lệ; item ngoài tập bị loại
+ *   itemPattern  (stringList) regex kiểm tra từng item (ngoài itemValues)
+ *   maxItems  (stringList) số phần tử tối đa
+ *   hidden    true = bỏ khỏi UI settings, chỉ dùng nội bộ
  *
  * Mọi thứ khác (defaults, validate, coerce, UI) đều suy ra từ đây.
  * Thêm setting mới = thêm 1 entry; không cần sửa panel hay storage.
@@ -104,11 +108,43 @@ export const SETTINGS_SCHEMA = {
       },
     },
   },
+
+  features: {
+    label: "Features",
+    description: "Tools shown in the sidebar.",
+    settings: {
+      /**
+       * Tiêu đề các tab đang tắt. Vắng mặt = bật (opt-out), nên feature
+       * mới tự xuất hiện mà không phải sửa gì ở đây.
+       *
+       * "Home" và "Settings" luôn bật — chúng là chỗ để bật lại mọi thứ,
+       * và bật lại chúng không được phụ thuộc vào một tab khác.
+       */
+      hidden: {
+        type: "stringList",
+        default: [],
+        hidden: true,
+        label: "Hidden tools",
+        description: "Tools turned off and hidden from the sidebar.",
+        maxItems: 50,
+      },
+    },
+  },
 };
+
+/** Tab luôn hiển thị, không thể tắt. */
+export const ALWAYS_ON_TABS = ["Home", "Settings"];
 
 /* ---------------------------------------------------------------
    Suy ra từ schema
    --------------------------------------------------------------- */
+
+/** Chuẩn hoá kiểu chuỗi. Cắt khoảng trắng, chuỗi rỗng -> undefined. */
+function coerceString(value) {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed === "" ? undefined : trimmed;
+}
 
 /** Giá trị mặc định cho toàn bộ settings. */
 export function buildDefaults(schema = SETTINGS_SCHEMA) {
@@ -144,6 +180,9 @@ export function coerceSetting(spec, value) {
   if (!spec) return undefined;
 
   switch (spec.type) {
+    case "string":
+      return coerceString(value);
+
     case "boolean":
       if (typeof value === "boolean") return value;
       if (value === "true") return true;
@@ -161,6 +200,25 @@ export function coerceSetting(spec, value) {
 
     case "enum":
       return spec.options.some((o) => o.value === value) ? value : undefined;
+
+    case "stringList": {
+      if (!Array.isArray(value)) return undefined;
+
+      const max = spec.maxItems ?? Infinity;
+      const pattern = spec.itemPattern ? new RegExp(spec.itemPattern) : null;
+
+      const items = [];
+      for (const item of value) {
+        if (typeof item !== "string") continue;
+        if (spec.itemValues && !spec.itemValues.includes(item)) continue;
+        if (pattern && !pattern.test(item)) continue;
+        if (items.includes(item)) continue;
+        items.push(item);
+        if (items.length >= max) break;
+      }
+
+      return items;
+    }
 
     default:
       return undefined;

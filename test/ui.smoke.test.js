@@ -68,8 +68,11 @@ test("mỗi tab render đầy đủ UI và tương tác được", async () => {
   assert.ok(q(".sidebar"), "sidebar tồn tại");
   assert.ok(q(".sidebar-menu button"), "sidebar có tab");
   const navButtons = all(".sidebar-menu button");
-  assert.equal(navButtons.length, 6, "sidebar-menu có 6 tab chính");
-  assert.equal(all(".sidebar-footer button").length, 2, "sidebar-footer có 2 tab phụ");
+  const { tabs: registry } = await import("@/app/tabs");
+  assert.equal(navButtons.length, registry.filter((t) => !t.bottom).length,
+    "sidebar-menu render đủ tab chính");
+  assert.equal(all(".sidebar-footer button").length,
+    registry.filter((t) => t.bottom).length, "sidebar-footer render đủ tab phụ");
 
   // --- Home (tab mặc định, index 0 = Realtime) ---
   // Trang Home nằm ở tab index 2 — điều hướng bằng click
@@ -83,12 +86,20 @@ test("mỗi tab render đầy đủ UI và tương tác được", async () => {
   assert.ok(q(".badge"), "header có badge version");
   assert.ok(q(".hero"), "home có hero");
   assert.ok(q(".hero .chip"), "hero có chip phím tắt");
-  assert.ok(all(".container button.card").length >= 6, "home có card cho mọi tool");  assert.ok(q(".card-icon svg"), "card có icon");
+  assert.ok(all(".container .card").length >= 6, "home có card cho mọi tool");
+  assert.equal(all(".container .card-main").length, all(".container .card").length,
+    "mỗi card có một nút mở");
+  assert.ok(q(".card-icon svg"), "card có icon");
   assert.ok(q(".card-title"), "card có title");
   assert.ok(q(".card-desc"), "card có description");
 
+  // mỗi card có công tắc bật/tắt
+  assert.ok(all(".container .card-toggle").length >= 6, "mỗi card có toggle");
+  assert.equal(q(".card-toggle").getAttribute("role"), "switch");
+  assert.equal(q(".card-toggle").getAttribute("aria-checked"), "true", "mặc định bật");
+
   // card điều hướng sang tab khác
-  const targetCard = all(".container button.card").find((c) =>
+  const targetCard = all(".container .card-main").find((c) =>
     c.textContent.includes("Translate"),
   );
   await act(async () => click(targetCard));
@@ -101,8 +112,7 @@ test("mỗi tab render đầy đủ UI và tương tác được", async () => {
   assert.ok(all(".split .box").length === 2, "translate có 2 box");
   assert.ok(q(".box-head .btn-text"), "translate có nút Clear/Copy");
 
-  const [src] = all(".split textarea");
-  await act(async () => type(src, "hello world"));
+  const [src] = all(".split textarea");  await act(async () => type(src, "hello world"));
   assert.match(q(".char-count").textContent, /11 \/ 5000/, "counter cập nhật");
 
   const swap = q(".toolbar .btn-icon");
@@ -159,7 +169,10 @@ test("mỗi tab render đầy đủ UI và tương tác được", async () => {
   );
   await act(async () => click(all(".sidebar-footer button")[settingsIndex]));
   const groups = all(".settings-group");
-  assert.equal(groups.length, 3, "settings có 3 nhóm");
+  assert.equal(groups.length, 3, "settings có 3 nhóm hiển thị");
+  // `features` là setting nội bộ (hidden: true) — không lộ ra UI
+  assert.ok(!groups.some((g) => g.textContent.includes("Hidden tools")),
+    "setting hidden không render");
   assert.ok(q(".switch input[type=checkbox]"), "settings có switch compact");
   assert.ok(q("input[type=range]"), "settings có range");
 

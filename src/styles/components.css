@@ -38,6 +38,7 @@
   transition: width 0.2s ease;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 
   &.collapse {
     position: relative;
@@ -45,6 +46,11 @@
     span {
       display: none;
     }
+  }
+
+  &.hide {
+    width: 0;
+    padding-inline: 0;
   }
 
   .sidebar-collapse {
@@ -129,43 +135,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--surface-variant);
-    border-radius: var(--shape-corner-larger);
-    padding: 20px;
-    cursor: pointer;
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      background-color 0.2s ease;
-    h1 {
-      margin-bottom: 8px;
-      font-size: var(--font-size);
-      font-weight: 600;
-      color: var(--on-surface);
-    }
-
-    p {
-      font-size: 14px;
-      color: var(--on-surface-variant);
-      line-height: 1.4;
-    }
-    &:hover {
-      background: var(--primary-container);
-      border-color: transparent;
-      transform: translateY(-2px);
-      box-shadow: var(--elevation-1);
-      h1 {
-        color: var(--on-primary-container);
-      }
-      p {
-        color: var(--on-primary-container);
-        opacity: 0.8;
-      }
-    }
   }
 
   p {
@@ -386,33 +355,57 @@
   color: var(--on-surface-variant);
 }
 
-/* --- Cards as buttons --- */
-.panel button.card {
+/* --- Cards --- */
+.panel .card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  width: 100%;
-  text-align: left;
-  font-family: var(--font);
   background: var(--surface);
-  color: inherit;
   border: 1px solid var(--surface-variant);
   border-radius: var(--shape-corner-larger);
   box-shadow: none;
-  padding: 20px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.panel button.card:hover {
+.panel .card:hover {
   background: var(--primary-container);
   border-color: transparent;
   box-shadow: var(--elevation-1);
   transform: translateY(-2px);
 }
 
-.panel button.card:active {
-  transform: translateY(0);
-  box-shadow: var(--elevation-1);
+/* Phần bấm được để mở tool — nút thật, nhưng trông như cả tấm card */
+.panel .card-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  padding-right: 56px;
+  background: transparent;
+  border: none;
+  border-radius: inherit;
+  color: inherit;
+  font-family: var(--font);
+  font-size: var(--font-size);
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+}
+
+.panel .card-main:disabled {
+  cursor: default;
+}
+
+.panel .card-main:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .panel .card-icon {
@@ -425,6 +418,9 @@
   border-radius: var(--shape-corner-medium);
   background: var(--primary-container);
   color: var(--on-primary-container);
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .panel .card-icon svg {
@@ -432,7 +428,7 @@
   height: 20px;
 }
 
-.panel button.card:hover .card-icon {
+.panel .card:hover .card-icon {
   background: var(--primary);
   color: var(--on-primary);
 }
@@ -451,18 +447,98 @@
   line-height: 1.4;
 }
 
-.panel button.card:hover .card-title {
+.panel .card:hover .card-title {
   color: var(--on-primary-container);
 }
 
-.panel button.card:hover .card-desc {
+.panel .card:hover .card-desc {
   color: var(--on-primary-container);
   opacity: 0.8;
 }
 
-.panel button.card-active {
+.panel .card-active {
   border-color: var(--primary);
   box-shadow: var(--elevation-1);
+}
+
+/* --- Công tắc bật/tắt tool trên card --- */
+.panel .card-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--shape-corner-full);
+  cursor: pointer;
+}
+
+.panel .card-toggle-track {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 20px;
+  background: var(--surface-variant);
+  border: 1px solid var(--outline);
+  border-radius: var(--shape-corner-full);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.panel .card-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--on-surface-variant);
+  border-radius: var(--shape-corner-full);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.panel .card-toggle.is-on .card-toggle-track {
+  background: var(--primary);
+  border-color: transparent;
+}
+
+.panel .card-toggle.is-on .card-toggle-thumb {
+  background: var(--on-primary);
+  transform: translateX(14px);
+}
+
+.panel .card-toggle:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.panel .card-toggle:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* Tool đang tắt: mờ đi, không còn tương tác mở */
+.panel .card-off {
+  opacity: 0.6;
+}
+
+.panel .card-off:hover {
+  transform: none;
+  background: var(--surface);
+  border-color: var(--surface-variant);
+  box-shadow: none;
+}
+
+.panel .card-off:hover .card-title,
+.panel .card-off:hover .card-desc {
+  color: var(--on-surface);
+}
+
+.panel .card-off .card-title {
+  color: var(--on-surface-variant);
 }
 
 /* --- Toolbar / inline fields / counters --- */
@@ -741,6 +817,17 @@
 :root[data-compact="true"] .panel {
   padding: 20px;
   gap: 12px;
+}
+
+:root[data-compact="true"] .panel .card-main {
+  padding: 14px;
+  padding-right: 48px;
+  gap: 4px;
+}
+
+:root[data-compact="true"] .panel .card-toggle {
+  top: 10px;
+  right: 10px;
 }
 
 /* --- Context menu --- */
@@ -1069,4 +1156,433 @@
 .panel .favorite-item:hover .phonetic {
   color: var(--on-primary-container);
   opacity: 0.75;
+}
+
+/* --- Assistant chat --- */
+.panel .chat {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.panel .chat-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.panel .chat-model {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--on-surface-variant);
+}
+
+.panel .chat-temp {
+  color: var(--primary);
+  border-color: currentColor;
+}
+
+.panel .chat-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.panel .chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--surface-variant);
+  border-radius: var(--shape-corner-medium);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.panel .chat-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel .chat-list-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--shape-corner-medium);
+}
+
+.panel .chat-list-item:hover {
+  background: var(--primary-container);
+}
+
+.panel .chat-list-item.is-active {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.panel .chat-open {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  padding: 4px 0;
+  color: inherit;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel .chat-open:hover {
+  background: none;
+  box-shadow: none;
+  color: var(--primary);
+}
+
+.panel .chat-rename-btn,
+.panel .chat-delete-btn {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.panel .chat-list-item:hover .chat-rename-btn,
+.panel .chat-list-item:hover .chat-delete-btn,
+.panel .chat-rename-btn:focus-visible,
+.panel .chat-delete-btn:focus-visible {
+  opacity: 1;
+}
+
+.panel .chat-rename {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel .chat-rename-input {
+  width: 100%;
+  padding: 4px 8px;
+  font-family: var(--font);
+  font-size: 14px;
+  border: 1px solid var(--primary);
+  border-radius: var(--shape-corner-medium);
+  background: var(--panel-bg);
+  color: var(--on-surface);
+}
+
+/* Vùng tin nhắn */
+.panel .chat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px;
+}
+
+.panel .chat-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 4px;
+}
+
+.panel .chat-empty h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+.panel .chat-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.panel .suggestion {
+  background: var(--surface);
+  border: 1px solid var(--surface-variant);
+  border-radius: var(--shape-corner-medium);
+  box-shadow: none;
+  color: var(--on-surface);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.panel .suggestion:hover {
+  background: var(--primary-container);
+  border-color: transparent;
+  color: var(--on-primary-container);
+  box-shadow: none;
+}
+
+/* Bong bóng tin nhắn */
+.panel .msg {
+  display: flex;
+  gap: 10px;
+  max-width: 100%;
+}
+
+.panel .msg-user {
+  justify-content: flex-end;
+}
+
+.panel .msg-user .msg-body {
+  max-width: 85%;
+  padding: 10px 14px;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: var(--shape-corner-larger);
+  border-bottom-right-radius: var(--shape-corner-medium);
+  font-size: var(--font-size);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.panel .msg-assistant {
+  align-items: flex-start;
+}
+
+.panel .msg-avatar {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--shape-corner-full);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel .msg-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel .msg-error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(217, 56, 41, 0.4);
+  border-radius: var(--shape-corner-medium);
+  background: rgba(217, 56, 41, 0.06);
+  font-size: 14px;
+  color: var(--on-surface);
+}
+
+.panel .msg-error strong {
+  color: #d93829;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.panel .msg-partial {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.panel .msg-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Markdown */
+.panel .markdown {
+  font-size: var(--font-size);
+  line-height: 1.6;
+  color: var(--on-surface);
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel .markdown h3,
+.panel .markdown h4,
+.panel .markdown h5,
+.panel .markdown h6 {
+  font-size: calc(var(--font-size) + 2px);
+  font-weight: 600;
+}
+
+.panel .markdown ul,
+.panel .markdown ol {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel .markdown ul {
+  list-style: disc;
+}
+
+.panel .markdown ol {
+  list-style: decimal;
+}
+
+.panel .markdown code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 2px 5px;
+  background: var(--surface-variant);
+  border-radius: 4px;
+}
+
+.panel .markdown pre {
+  padding: 12px;
+  background: var(--surface-variant);
+  border-radius: var(--shape-corner-medium);
+  overflow-x: auto;
+}
+
+.panel .markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.panel .markdown blockquote {
+  padding-left: 12px;
+  border-left: 3px solid var(--primary);
+  color: var(--on-surface-variant);
+  font-style: italic;
+}
+
+.panel .markdown a {
+  color: var(--primary);
+}
+
+/* Chấm "đang gõ" */
+.panel .typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 6px 0;
+}
+
+.panel .typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--shape-corner-full);
+  background: var(--on-surface-variant);
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.panel .typing i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.panel .typing i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typing-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* Ô nhập */
+.panel .chat-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--surface-variant);
+  border-radius: var(--shape-corner-larger);
+}
+
+.panel .chat-composer:focus-within {
+  border-color: var(--primary);
+}
+
+.panel .chat-composer textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 160px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--on-surface);
+  font-family: var(--font);
+  font-size: var(--font-size);
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.panel .chat-send {
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+.panel .chat-stop {
+  flex-shrink: 0;
+  align-self: flex-end;
+  background: var(--surface-variant);
+  color: var(--on-surface);
+}
+
+.panel .chat-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border: 1px solid rgba(217, 56, 41, 0.4);
+  border-radius: var(--shape-corner-medium);
+  background: rgba(217, 56, 41, 0.06);
+  font-size: 14px;
+}
+
+.panel .chat-error-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.panel .chat-foot {
+  text-align: center;
+}
+
+:root[data-compact="true"] .panel .chat-scroll {
+  gap: 12px;
 }

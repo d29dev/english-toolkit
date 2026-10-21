@@ -52,6 +52,15 @@ Layering rules:
 - Touching settings: everything lives in `src/core/settings/` (schema, storage, provider, hook); the panel UI is `src/features/settings/`.
 - Two tabs sharing state (e.g. Lookup + Favorites): put the provider in `features/<name>/` and wrap it once in `app/App.jsx`, above `TabProvider`. Context object goes in its own file so fast refresh stays happy.
 
+## Turning tools on and off
+
+Every Home card has a switch. Turning a tool off hides it from the sidebar; the card stays on Home (dimmed) so you can turn it back on. State lives in the `features.hidden` setting (`stringList`), so it persists and shows up in Reset.
+
+- **Opt-out model**: a tab missing from `hidden` is on, so a new feature appears automatically without touching the schema.
+- **`Home` and `Settings` are always on** — `ALWAYS_ON_TABS` in `core/settings/schema.js`. They are where you go to turn things back on, so they can't be switched off (their toggle renders disabled).
+- `useTab()` returns `tabs` (enabled only, what the sidebar renders), `allTabs` (full registry, what Home renders), plus `toggleTab(title)` and `isEnabled(title)`.
+- The open tab is tracked **by title, not index**, so hiding one tool never yanks you into a different one. Only turning off the tool you're currently viewing moves you, to the first enabled tab.
+
 ## Realtime transcription
 
 The Live tab captures tab/system audio or microphone (`AudioCaptureService` → PCM Float32 mono 16 kHz via AudioWorklet) and streams it over WebSocket to a local backend:
@@ -64,9 +73,11 @@ The Live tab captures tab/system audio or microphone (`AudioCaptureService` → 
 Settings are defined by a schema in `src/core/settings/schema.js` — the single source of truth for defaults, types, allowed values, and UI labels. Everything else derives from it:
 
 - `buildDefaults()` → default settings object (used by the provider and storage).
-- `coerceSetting(spec, value)` → normalizes a value or returns `undefined` when invalid (enum membership, numeric range, boolean strings).
+- `coerceSetting(spec, value)` → normalizes a value or returns `undefined` when invalid (enum membership, numeric range, boolean strings, string trimming, string-list filtering).
+- `getSettingSpec(group, key)` / `listSettings()` → introspection helpers. A spec with `hidden: true` is kept out of the Settings UI.
 - `sanitizeSettings(raw)` → cleans anything read from storage: drops unknown groups/keys, replaces wrong-typed values with defaults. Corrupt JSON can't break the app.
-- `listSettings()` / `getSettingSpec(group, key)` → introspection helpers.
+
+Supported types: `enum` (dropdown), `number` (range slider with min/max/step/unit), `boolean` (switch), `string` (trimmed, empty rejected), `stringList` (array of strings, deduped and capped by `maxItems`).
 
 `updateSetting()` validates against the schema before writing, so an invalid value is rejected instead of persisted. Adding a setting means adding one entry to the schema — the Settings panel renders rows from it automatically (enum → `<select>`, number → range slider with min/max/step/unit, boolean → switch).
 
