@@ -22,6 +22,13 @@ import AssistantPanel from "@/features/assistant";
 
 export const tabs = [
   {
+    off: false,
+    title: "Home",
+    icon: HomeIcon,
+    content: HomePanel,
+    description: "Home page",
+  },
+  {
     off: true,
     title: "Realtime",
     icon: LiveIcon,
@@ -34,13 +41,6 @@ export const tabs = [
     icon: LanguageIcon,
     content: TranslatePanel,
     description: "Word translator",
-  },
-  {
-    off: false,
-    title: "Home",
-    icon: HomeIcon,
-    content: HomePanel,
-    description: "Home page",
   },
   {
     off: false,

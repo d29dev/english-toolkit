@@ -26,7 +26,6 @@
   }
 }
 
-
 .sidebar {
   z-index: 4;
   background: var(--surface);
@@ -141,7 +140,14 @@
 
   .container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    /* width: 1200px;
+    margin: 0 auto;
+    max-width: 100%; */
+    /* grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); */
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(max(320px, 25% - 16px), 1fr)
+    );
     gap: 16px;
   }
 
@@ -174,14 +180,18 @@
       font-size: 12px;
       color: var(--on-surface-variant);
       font-weight: 500;
-      margin-left: auto;
+      width: 100%;
+      padding: 20px;
+      border-radius: var(--shape-corner-medium);
 
       &.status-err {
         color: #d93829;
+      background: #d9382920;
       }
 
       &.status-ok {
         color: var(--primary);
+      background: var(--on-primary);
       }
     }
   }
@@ -197,6 +207,7 @@
     font-family: var(--font);
     font-size: var(--font-size);
     cursor: pointer;
+    appearance: none;
     outline: 0;
     transition:
       width 0.2s ease,
@@ -204,7 +215,10 @@
     &:focus {
       border-color: var(--primary);
       border-width: 2px;
-      padding: 6px 12px;
+      padding: 7px 11px;
+    }
+    option {
+      background: var(--surface);
     }
   }
 
@@ -250,11 +264,10 @@
       outline: 0;
       border-color: var(--primary);
       border-width: 2px;
-      padding: 16px;
+      padding: 15px;
     }
   }
 }
-
 
 /* ============================================================
    Feature UI — header, hero, cards-as-buttons, toolbars,
@@ -522,7 +535,9 @@
   background: var(--surface-variant);
   border: 1px solid var(--outline);
   border-radius: var(--shape-corner-full);
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 
 .panel .card-toggle-thumb {
@@ -533,7 +548,9 @@
   height: 14px;
   background: var(--on-surface-variant);
   border-radius: var(--shape-corner-full);
-  transition: transform 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s;
 }
 
 .panel .card-toggle.is-on .card-toggle-track {
@@ -905,7 +922,9 @@
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .contextmenu-item:hover,
@@ -1119,7 +1138,10 @@
   padding: 4px 12px;
   cursor: pointer;
   align-self: auto;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .panel button.chip-button:hover {
@@ -1152,7 +1174,9 @@
   background: var(--surface);
   border: 1px solid var(--surface-variant);
   border-radius: var(--shape-corner-medium);
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .panel .favorite-item:hover {
@@ -1364,7 +1388,10 @@
   text-align: left;
   padding: 10px 14px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
 }
 
 .panel .suggestion:hover {
@@ -1545,7 +1572,9 @@
 }
 
 @keyframes typing-bounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
     opacity: 0.5;
   }
