@@ -17,11 +17,21 @@ import "@/styles/components.css";
 import "@/styles/responsive.css";
 
 function AppContent() {
-  useShortcuts();
-
   const { tabs, next, prev, goto } = useTab();
   const { resetSettings } = useSettings();
   const [menuPosition, setMenuPosition] = useState(null);
+  const [sidebarHidden, setSidebarHidden] = useState(false);
+
+  /**
+   * Bật/tắt hoàn toàn sidebar (khác với `collapse` chỉ thu gọn lại).
+   * State nằm ở App vì cả context menu, phím tắt lẫn panel header
+   * đều cần điều khiển sidebar.
+   */
+  const toggleSidebar = useCallback(() => {
+    setSidebarHidden((hidden) => !hidden);
+  }, []);
+
+  useShortcuts({ onToggleSidebar: toggleSidebar });
 
   const openMenu = useCallback((e) => {
     e.preventDefault();
@@ -43,14 +53,16 @@ function AppContent() {
         goto,
         resetSettings,
         index: indexOfTab,
+        toggleSidebar,
+        sidebarHidden,
       }),
-    [next, prev, goto, resetSettings, indexOfTab],
+    [next, prev, goto, resetSettings, indexOfTab, toggleSidebar, sidebarHidden],
   );
 
   return (
     <div className="app-body" onContextMenu={openMenu}>
-      <Sidebar />
-      <Panel />
+      <Sidebar hidden={sidebarHidden} />
+      <Panel sidebarHidden={sidebarHidden} onShowSidebar={toggleSidebar} />
       <ContextMenu position={menuPosition} items={menuItems} onClose={closeMenu} />
     </div>
   );

@@ -140,6 +140,21 @@ function AssistantIcon() {
   );
 }
 
+function MenuIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      fill="currentColor"
+      className="bi bi-list"
+      viewBox="0 0 16 16"
+    >
+      <path d="M8 6a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 8 6m0 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 8 10m0 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5M.5 6a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5m0 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5" />
+    </svg>
+  );
+}
+
 export {
   AccountIcon,
   LanguageIcon,
@@ -150,4 +165,5 @@ export {
   LookupIcon,
   StarIcon,
   AssistantIcon,
+  MenuIcon,
 };

@@ -12,6 +12,13 @@
 
             
         }
+
+        /* Sidebar phủ kín màn hình ở layout hẹp — ẩn hoàn toàn thì bỏ
+           hẳn khỏi flow thay vì chỉ rộng 0. */
+        .sidebar.hide {
+            display: none;
+        }
+
         .panel {
             select {
                 width: 100%;

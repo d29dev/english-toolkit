@@ -9,7 +9,15 @@ export const CONTEXT_MENU_EVENT = "app:context-menu";
  * `shortcut` là chuỗi hiển thị (không phải binding thật) — binding thật
  * nằm ở core/hooks/useShortcuts.js.
  */
-export function buildMenuItems({ next, prev, goto, resetSettings, index }) {
+export function buildMenuItems({
+  next,
+  prev,
+  goto,
+  resetSettings,
+  toggleSidebar,
+  sidebarHidden = false,
+  index,
+}) {
   return [
     {
       id: "next",
@@ -45,6 +53,13 @@ export function buildMenuItems({ next, prev, goto, resetSettings, index }) {
       id: "clear-selection",
       label: "Clear selection",
       run: () => window.getSelection()?.removeAllRanges(),
+    },
+    { type: "separator", id: "sep-view" },
+    {
+      id: "toggle-sidebar",
+      label: sidebarHidden ? "Show sidebar" : "Hide sidebar completely",
+      shortcut: "Ctrl + B",
+      run: toggleSidebar,
     },
     { type: "separator", id: "sep-reset" },
     {

@@ -35,7 +35,9 @@
   display: flex;
   gap: 8px;
   padding: 16px 12px;
-  transition: width 0.2s ease;
+  transition:
+    width 0.2s ease,
+    visibility 0.2s ease;
   flex-direction: column;
   overflow: hidden;
   height: 100%;
@@ -48,9 +50,15 @@
     }
   }
 
+  /* Ẩn hoàn toàn: sidebar không còn chiếm chỗ, không bắt chuột và
+     không nhận focus (visibility: hidden) — bật lại được bằng menu,
+     phím tắt hoặc nút trong header của panel. */
   &.hide {
     width: 0;
     padding-inline: 0;
+    border-right: none;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .sidebar-collapse {
@@ -266,6 +274,34 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+}
+
+/* Nút bật lại sidebar — chỉ hiện khi sidebar đang bị ẩn hoàn toàn */
+.panel .panel-menu {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--surface-variant);
+  border-radius: var(--shape-corner-full);
+  background: var(--surface);
+  color: var(--on-surface-variant);
+  box-shadow: none;
+
+  &:hover {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+    box-shadow: none;
+  }
+}
+
+.panel .panel-menu svg {
+  width: 18px;
+  height: 18px;
 }
 
 .panel .panel-heading-icon {
