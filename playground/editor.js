@@ -1,8 +1,0 @@
-class Editor {
-    constructor() {}
-    
-
-    value() {
-        
-    }
-}
