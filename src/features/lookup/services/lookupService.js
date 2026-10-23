@@ -34,7 +34,7 @@ export function createDictionaryApiAdapter({ baseUrl } = {}) {
       ? import.meta.env.VITE_LOOKUP_URL
       : "";
 
-  const endpoint = baseUrl || fromEnv || "https://api.dictionaryapi.dev/api/v2/entries/en";
+  const endpoint = baseUrl || fromEnv || "https://dict.minhqnd.com/api/v1/lookup?word=";
 
   return {
     name: "dictionaryapi.dev",
@@ -47,7 +47,8 @@ export function createDictionaryApiAdapter({ baseUrl } = {}) {
 
       let response;
       try {
-        response = await fetch(`${endpoint}/${encodeURIComponent(term)}`, { signal });
+        // response = await fetch(`${endpoint}/${encodeURIComponent(term)}`, { signal });
+        response = await fetch(`${endpoint}${encodeURIComponent(term)}`, { signal });
       } catch (error) {
         if (error?.name === "AbortError") throw error;
         throw new LookupError("network", "Could not reach the dictionary service");
@@ -82,52 +83,165 @@ export function createDictionaryApiAdapter({ baseUrl } = {}) {
 }
 
 /** Chuyển payload thô của dictionaryapi.dev về LookupResult. */
-export function normalizeDictionaryApi(payload, fallbackWord) {
-  const entries = Array.isArray(payload) ? payload : [];
+// export function normalizeDictionaryApi(payload, fallbackWord) {
+  // const entries = Array.isArray(payload) ? payload : [];
+  // const meanings = [];
+  // let phonetic = null;
+  // let audio = null;
+  // for (const entry of entries) {
+  //   if (!phonetic && entry.phonetic) phonetic = entry.phonetic;
 
-  const meanings = [];
-  let phonetic = null;
-  let audio = null;
+  //   for (const p of entry.phonetics ?? []) {
+  //     if (!phonetic && p.text) phonetic = p.text;
+  //     if (!audio && p.audio) audio = p.audio;
+  //   }
 
-  for (const entry of entries) {
-    if (!phonetic && entry.phonetic) phonetic = entry.phonetic;
+  //   for (const meaning of entry.meanings ?? []) {
+  //     const definitions = (meaning.definitions ?? [])
+  //       .filter((d) => d?.definition)
+  //       .slice(0, 5)
+  //       .map((d) => ({
+  //         definition: d.definition,
+  //         example: d.example ?? null,
+  //       }));
 
-    for (const p of entry.phonetics ?? []) {
-      if (!phonetic && p.text) phonetic = p.text;
-      if (!audio && p.audio) audio = p.audio;
-    }
+  //     if (definitions.length === 0) continue;
 
-    for (const meaning of entry.meanings ?? []) {
-      const definitions = (meaning.definitions ?? [])
-        .filter((d) => d?.definition)
-        .slice(0, 5)
-        .map((d) => ({
-          definition: d.definition,
-          example: d.example ?? null,
-        }));
+  //     meanings.push({
+  //       partOfSpeech: meaning.partOfSpeech ?? "unknown",
+  //       definitions,
+  //       synonyms: (meaning.synonyms ?? []).slice(0, 8),
+  //     });
+  //   }
+  // }
 
-      if (definitions.length === 0) continue;
+  // if (meanings.length === 0) {
+  //   throw new LookupError("not_found", `No usable entry for “${fallbackWord}”`);
+  // }
 
-      meanings.push({
-        partOfSpeech: meaning.partOfSpeech ?? "unknown",
-        definitions,
-        synonyms: (meaning.synonyms ?? []).slice(0, 8),
+  // return {
+  //   word: entries[0]?.word ?? fallbackWord,
+  //   phonetic,
+  //   audio,
+  //   source: "dictionaryapi.dev",
+  //   meanings,
+  // };
+
+// }
+
+
+function normalizeDictionaryApi(payload, fallbackWord) {
+  if (!payload?.exists || !payload.results?.length) {
+    return null;
+  }
+
+  const entry =
+    payload.results.find((item) => item.lang_code === "en") ??
+    payload.results[0];
+
+  const normalizeText = (value) =>
+    typeof value === "string"
+      ? value.normalize("NFC").trim()
+      : "";
+
+  const posMap = {
+    "danh từ": "noun",
+    "động từ": "verb",
+    "tính từ": "adjective",
+    "trạng từ": "adverb",
+    "thán từ": "interjection",
+    "giới từ": "preposition",
+    "đại từ": "pronoun",
+    "liên từ": "conjunction",
+    "mạo từ": "article",
+    "từ hạn định": "determiner",
+    "trợ động từ": "auxiliary verb",
+    "số từ": "numeral",
+    "từ cảm thán": "interjection",
+  };
+
+  const normalizePos = (pos) => {
+    const value = normalizeText(pos).toLowerCase();
+    return posMap[value] ?? (value || "unknown");
+  };
+
+  const meaningsMap = new Map();
+
+  for (const item of entry.meanings ?? []) {
+    const partOfSpeech = normalizePos(item.pos);
+
+    if (!meaningsMap.has(partOfSpeech)) {
+      meaningsMap.set(partOfSpeech, {
+        partOfSpeech,
+        definitions: [],
+        synonyms: [],
       });
     }
+
+    const group = meaningsMap.get(partOfSpeech);
+    const definition = normalizeText(item.definition);
+    const example = item.example
+      ? normalizeText(item.example)
+      : null;
+
+    const exists = group.definitions.some(
+      (d) =>
+        d.definition === definition &&
+        d.example === example
+    );
+
+    if (definition && !exists) {
+      group.definitions.push({ definition, example });
+    }
   }
 
-  if (meanings.length === 0) {
-    throw new LookupError("not_found", `No usable entry for “${fallbackWord}”`);
+  const synonyms = [
+    ...new Set(
+      (entry.relations ?? [])
+        .filter(
+          (item) =>
+            normalizeText(item.relation_type).toLowerCase() ===
+            "đồng nghĩa"
+        )
+        .map((item) => normalizeText(item.related_word))
+        .filter(Boolean)
+    ),
+  ];
+
+  // API không phân loại synonym theo POS.
+  for (const group of meaningsMap.values()) {
+    group.synonyms = [...synonyms];
   }
+
+  const rawAudio = normalizeText(entry.audio);
+  let audio = null;
+
+  if (rawAudio) {
+    try {
+      audio = new URL(rawAudio, "https://dict.minhqnd.com/" || undefined).href;
+    } catch {
+      audio = rawAudio;
+    }
+  }
+
+  const sources = [
+    ...new Set(
+      (entry.meanings ?? [])
+        .map((item) => normalizeText(item.source))
+        .filter(Boolean)
+    ),
+  ];
 
   return {
-    word: entries[0]?.word ?? fallbackWord,
-    phonetic,
+    word: normalizeText(payload.word).toLowerCase(),
+    phonetic:
+      normalizeText(entry.pronunciations?.[0]?.ipa) || null,
     audio,
-    source: "dictionaryapi.dev",
-    meanings,
+    source: sources.join(", ") || "unknown",
+    meanings: [...meaningsMap.values()],
   };
 }
+
 
 let active = null;
 

@@ -17,8 +17,8 @@
   "commands": {
     "toggle-panel": {
       "suggested_key": {
-        "default": "Ctrl+Shift+E",
-        "mac": "Command+Shift+E"
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
       },
       "description": "Open the side panel"
     }
